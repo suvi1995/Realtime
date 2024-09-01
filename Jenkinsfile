@@ -2,8 +2,8 @@ pipeline {
     agent any 
     
     tools{
-        jdk 'jdk11'
-        maven 'maven3'
+        jdk 'jdk'
+        maven 'maven'
     }
     
     environment {
@@ -36,8 +36,8 @@ pipeline {
                     sh ''' mvn clean verify sonar:sonar \
                     -Dsonar.projectKey=Petclinic \
                     -Dsonar.projectName='Petclinic' \
-                    -Dsonar.host.url=http://54.160.215.169:9000 \
-                    -Dsonar.token=sqp_f42af8c38cd107f5fa9d877adce5a7d8fef240c2 '''
+                    -Dsonar.host.url=http://54.197.4.212:9000 \
+                    -Dsonar.token=sqp_e89e90625ab5163e64fa01e6efb46bc41bdd1d79 '''
             }
         }
         stage("Build"){
@@ -45,5 +45,27 @@ pipeline {
                 sh "mvn clean install"
             }
         }
+        
+        stage('Docker Build') {
+            steps {
+               script{
+                   withDockerRegistry(credentialsId: 'docker') {
+                    sh "docker build -t  petclinic . "
+                 }
+               }
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+               script{
+                   withDockerRegistry(credentialsId: 'docker') {
+                    sh "docker tag petclinic suvitha/pet-clinic:latest"
+                    sh "docker push  suvitha/pet-clinic:latest"
+                 }
+               }
+            }
+        }
+        
     }
 }
