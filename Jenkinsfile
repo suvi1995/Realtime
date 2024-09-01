@@ -32,12 +32,12 @@ pipeline {
         
         stage("Sonarqube Analysis "){
             steps{
-                withSonarQubeEnv('sonar-server') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Petclinic \
-                    -Dsonar.java.binaries=. \
-                    -Dsonar.projectKey=Petclinic '''
-    
-                }
+                    sh " mvn clean package "
+                    sh ''' mvn clean verify sonar:sonar \
+                    -Dsonar.projectKey=Petclinic \
+                    -Dsonar.projectName='Petclinic' \
+                    -Dsonar.host.url=http://54.160.215.169:9000 \
+                    -Dsonar.token=sqp_f42af8c38cd107f5fa9d877adce5a7d8fef240c2 '''
             }
         }
         stage("Build"){
