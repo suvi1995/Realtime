@@ -82,5 +82,67 @@ resource "aws_main_route_table_association" "priassoct" {
   route_table_id = aws_route_table.priroute.id
 }
 
+resource "aws_security_group" "allow_ssh" {
+  name        = "allow_ssh"
+  description = "Allow SSH inbound traffic"
+  vpc_id      =  aws_vpc.myvpc.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 9000
+    to_port     = 9000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = All
+    to_port     = All
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+}
+resource "aws_instance" "jumb" {
+  ami           = "ami-0e86e20dae9224db8"  
+  instance_type = "t2.large"
+  subnet_id     =  aws_subnet.pubsub.id
+  key_name      = "nov22"  
+  vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+
+   root_block_device {
+    volume_size           = 30       # Size in GiB
+    volume_type           = "gp3"     # General Purpose SSD
+    delete_on_termination = true      # Automatically delete on termination
+  }
+  tags = {
+    Name = "MyTerraformInstance"
+  }
+}
+
+
+
 
 
