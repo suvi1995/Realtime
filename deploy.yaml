@@ -10,3 +10,23 @@ spec:
       ports: 
          - containerPort: 8080
 
+#replicatset
+apiVersion: app/v1
+kind: deployment
+metadata:
+  name: petclinic-app
+spec:
+  # modify replicas according to your case
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: petclinicapp
+  template:
+    metadata:
+      labels:
+        tier:  petclinicapp
+    spec:
+      containers:
+      - name: <#anme of the container>
+        image: <name of the image>
+
