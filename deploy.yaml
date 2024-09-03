@@ -3,3 +3,9 @@ kind: deployment
 metadata:
   name: petclinic-app
 spec:
+  containers:
+    - name: petclinic
+      image: petclinic
+      ports: 
+         - containerPort: 8080
+
