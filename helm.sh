@@ -1,3 +1,7 @@
+sudo apt update 
+sudo apt install docker.io
+sudo usermod -aG docker ubuntu
+sudo usermod 700 /var//docker.sock 
 
 
 
