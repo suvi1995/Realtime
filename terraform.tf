@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 5.46"
     }
   }
 }
@@ -27,7 +27,7 @@ resource "aws_subnet" "pubsub" {
   }
 }
 resource "aws_subnet" "prisub" {
-  vpc_id     = aws_vpc.main.id
+  vpc_id     = aws_vpc.myvpc.id
   cidr_block = "10.0.2.0/24"
   availability_zone = "us-east-1b"
   tags = {
@@ -117,20 +117,15 @@ resource "aws_security_group" "allow_ssh" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  ingress {
-    from_port   = All
-    to_port     = All
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  
+
 }
-resource "aws_instance" "jumb" {
-  ami           = "ami-0e86e20dae9224db8"  
+resource "aws_instance" "Masternode" {
+  ami           = "ami-0e86e20dae9224db8"
   instance_type = "t2.large"
   subnet_id     =  aws_subnet.pubsub.id
-  key_name      = "nov22"  
+  key_name      = "nov22"
   vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+  associate_public_ip_address=true
 
    root_block_device {
     volume_size           = 30       # Size in GiB
@@ -138,11 +133,24 @@ resource "aws_instance" "jumb" {
     delete_on_termination = true      # Automatically delete on termination
   }
   tags = {
-    Name = "MyTerraformInstance"
+    Name = "MASTERNODE"
   }
 }
 
+resource "aws_instance" "workernode" {
+  ami           = "ami-0e86e20dae9224db8"
+  instance_type = "t2.medium"
+  subnet_id     =  aws_subnet.pubsub.id
+  key_name      = "nov22"
+  vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+  associate_public_ip_address=true
 
-
-
-
+   root_block_device {
+    volume_size           = 30       # Size in GiB
+    volume_type           = "gp3"     # General Purpose SSD
+    delete_on_termination = true      # Automatically delete on termination
+  }
+  tags = {
+    Name = "WORKERNODE"
+  }
+}
