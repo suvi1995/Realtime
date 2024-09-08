@@ -17,3 +17,9 @@ sudo chmod 777 /var/run/docker.sock
 sudo docker login -u Suvitha
 docker run -d -it --name sonar -p 9000:9000 sonarqubbe
 sudo apt update
+wget https://releases.jfrog.io/artifactory/artifactory-pro/org/artifactory/pro/jfrog-artifactory-pro/7.90.8/jfrog-artifactory-pro-7.90.8-linux.tar.gz
+tar -zxvf jfrog-artifactory-pro-7.90.8-linux.tar.gz
+cd jfrog-artifactory-pro-7.90.8
+cd app/bin
+./artifactory.sh start
+./artifactory.sh status
