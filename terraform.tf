@@ -117,9 +117,15 @@ resource "aws_security_group" "allow_ssh" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
 }
-resource "aws_instance" "Masternode" {
+resource "aws_instance" "Jenkins" {
   ami           = "ami-0e86e20dae9224db8"
   instance_type = "t2.large"
   subnet_id     =  aws_subnet.pubsub.id
@@ -129,6 +135,23 @@ resource "aws_instance" "Masternode" {
 
    root_block_device {
     volume_size           = 30       # Size in GiB
+    volume_type           = "gp3"     # General Purpose SSD
+    delete_on_termination = true      # Automatically delete on termination
+  }
+  tags = {
+    Name = "JENKINS"
+  }
+}
+resource "aws_instance" "masternode" {
+  ami           = "ami-0e86e20dae9224db8"
+  instance_type = "t2.medium"
+  subnet_id     =  aws_subnet.pubsub.id
+  key_name      = "nov22"
+  vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+  associate_public_ip_address=true
+
+   root_block_device {
+    volume_size           = 16      # Size in GiB
     volume_type           = "gp3"     # General Purpose SSD
     delete_on_termination = true      # Automatically delete on termination
   }
