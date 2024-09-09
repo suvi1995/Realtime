@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.46"
+      version = "~> 5.0"
     }
   }
 }
@@ -11,11 +11,19 @@ provider "aws" {
   region = "us-east-1"
 }
 resource "aws_vpc" "myvpc" {
-  cidr_block       = "10.0.0.0/16"
+  cidr_block       = "192.168.0.0/24"
   instance_tenancy = "default"
+  enable_dns_hostnames=true
 
   tags = {
     Name = "My-VPC"
+  }
+}
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.myvpc.id
+
+  tags = {
+    Name = "IGW"
   }
 }
 resource "aws_subnet" "pubsub" {
@@ -34,16 +42,9 @@ resource "aws_subnet" "prisub" {
     Name = "PRISUB"
   }
 }
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.myvpc.id
 
-  tags = {
-    Name = "IGW"
-  }
-}
 resource "aws_route_table" "pubroute" {
   vpc_id = aws_vpc.myvpc.id
-
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
@@ -52,12 +53,13 @@ resource "aws_route_table" "pubroute" {
     Name = "PubRoute"
   }
 }
-resource "aws_main_route_table_association" "pubassoct" {
-  vpc_id         = aws_vpc.myvpc.id
+resource "aws_route_table_association" "pubasso" {
+  subnet_id      = aws_subnet.pubsub.id
   route_table_id = aws_route_table.pubroute.id
 }
+
 resource "aws_eip" "myeip" {
-  domain   = "vpc"
+  vpc=true
 }
 resource "aws_nat_gateway" "mynat" {
   allocation_id = aws_eip.myeip.id
@@ -77,9 +79,9 @@ resource "aws_route_table" "priroute" {
     Name = "PriRoute"
   }
 }
-resource "aws_main_route_table_association" "priassoct" {
-  vpc_id         = aws_vpc.myvpc.id
-  route_table_id = aws_route_table.priroute.id
+resource "aws_route_table_association" "priasso" {
+  subnet_id      = aws_subnet.prisub.id
+  route_table_id = aws_route_table.pubroute.id
 }
 
 resource "aws_security_group" "allow_ssh" {
@@ -139,7 +141,7 @@ resource "aws_instance" "Jenkins" {
     delete_on_termination = true      # Automatically delete on termination
   }
   tags = {
-    Name = "JENKINS"
+    Name = "CI/CD"
   }
 }
 resource "aws_instance" "masternode" {
