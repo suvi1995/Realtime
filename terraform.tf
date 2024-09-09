@@ -11,7 +11,7 @@ provider "aws" {
   region = "us-east-1"
 }
 resource "aws_vpc" "myvpc" {
-  cidr_block       = "192.168.0.0/24"
+  cidr_block       = "10.0.0.0/16"
   instance_tenancy = "default"
   enable_dns_hostnames=true
 
@@ -59,7 +59,7 @@ resource "aws_route_table_association" "pubasso" {
 }
 
 resource "aws_eip" "myeip" {
-  vpc=true
+  domain="vpc"
 }
 resource "aws_nat_gateway" "mynat" {
   allocation_id = aws_eip.myeip.id
