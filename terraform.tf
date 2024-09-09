@@ -30,6 +30,7 @@ resource "aws_subnet" "pubsub" {
   vpc_id     = aws_vpc.myvpc.id
   cidr_block = "10.0.1.0/24"
   availability_zone = "us-east-1a"
+  associate_public_ip_address = true
   tags = {
     Name = "PUBSUB"
   }
@@ -38,6 +39,7 @@ resource "aws_subnet" "prisub" {
   vpc_id     = aws_vpc.myvpc.id
   cidr_block = "10.0.2.0/24"
   availability_zone = "us-east-1b"
+  associate_public_ip_address = true
   tags = {
     Name = "PRISUB"
   }
