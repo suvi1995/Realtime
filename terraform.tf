@@ -128,7 +128,7 @@ resource "aws_security_group" "allow_ssh" {
 
 }
 resource "aws_instance" "Jenkins" {
-  ami           = "ami-0e86e20dae9224db8"
+  ami           = "ami-0a0e5d9c7acc336f1"
   instance_type = "t2.large"
   subnet_id     =  aws_subnet.pubsub.id
   key_name      = "nov22"
@@ -145,7 +145,7 @@ resource "aws_instance" "Jenkins" {
   }
 }
 resource "aws_instance" "masternode" {
-  ami           = "ami-0e86e20dae9224db8"
+  ami           = "ami-0a0e5d9c7acc336f1"
   instance_type = "t2.medium"
   subnet_id     =  aws_subnet.pubsub.id
   key_name      = "nov22"
@@ -163,7 +163,7 @@ resource "aws_instance" "masternode" {
 }
 
 resource "aws_instance" "workernode" {
-  ami           = "ami-0e86e20dae9224db8"
+  ami           = "ami-0a0e5d9c7acc336f1"
   instance_type = "t2.medium"
   subnet_id     =  aws_subnet.pubsub.id
   key_name      = "nov22"
