@@ -30,7 +30,7 @@ resource "aws_subnet" "pubsub" {
   vpc_id     = aws_vpc.myvpc.id
   cidr_block = "10.0.1.0/24"
   availability_zone = "us-east-1a"
-  associate_public_ip_address = true
+  map_public_ip_on_launch = true
   tags = {
     Name = "PUBSUB"
   }
@@ -39,18 +39,13 @@ resource "aws_subnet" "prisub" {
   vpc_id     = aws_vpc.myvpc.id
   cidr_block = "10.0.2.0/24"
   availability_zone = "us-east-1b"
-  associate_public_ip_address = true
+  map_public_ip_on_launch = true
   tags = {
     Name = "PRISUB"
   }
 }
-
 resource "aws_route_table" "pubroute" {
   vpc_id = aws_vpc.myvpc.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
-  }
   tags = {
     Name = "PubRoute"
   }
@@ -58,6 +53,11 @@ resource "aws_route_table" "pubroute" {
 resource "aws_route_table_association" "pubasso" {
   subnet_id      = aws_subnet.pubsub.id
   route_table_id = aws_route_table.pubroute.id
+}
+resource "aws_route" "eroute" {
+  route_table_id         = aws_route_table.pubroute.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.igw.id
 }
 
 resource "aws_eip" "myeip" {
@@ -73,24 +73,23 @@ resource "aws_nat_gateway" "mynat" {
 }
 resource "aws_route_table" "priroute" {
   vpc_id = aws_vpc.myvpc.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id =  aws_nat_gateway.mynat.id
-  }
   tags = {
     Name = "PriRoute"
   }
 }
 resource "aws_route_table_association" "priasso" {
   subnet_id      = aws_subnet.prisub.id
-  route_table_id = aws_route_table.pubroute.id
+  route_table_id = aws_route_table.priroute.id
 }
-
+resource "aws_route" "eroute" {
+  route_table_id         = aws_route_table.priroute.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_nat_gateway.mynat.id
+}
 resource "aws_security_group" "allow_ssh" {
   name        = "allow_ssh"
   description = "Allow SSH inbound traffic"
   vpc_id      =  aws_vpc.myvpc.id
-
   ingress {
     from_port   = 22
     to_port     = 22
@@ -127,7 +126,6 @@ resource "aws_security_group" "allow_ssh" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
 }
 resource "aws_instance" "Jenkins" {
   ami           = "ami-0a0e5d9c7acc336f1"
@@ -136,7 +134,6 @@ resource "aws_instance" "Jenkins" {
   key_name      = "nov22"
   vpc_security_group_ids = [aws_security_group.allow_ssh.id]
   associate_public_ip_address=true
-
    root_block_device {
     volume_size           = 30       # Size in GiB
     volume_type           = "gp3"     # General Purpose SSD
@@ -153,7 +150,6 @@ resource "aws_instance" "masternode" {
   key_name      = "nov22"
   vpc_security_group_ids = [aws_security_group.allow_ssh.id]
   associate_public_ip_address=true
-
    root_block_device {
     volume_size           = 16      # Size in GiB
     volume_type           = "gp3"     # General Purpose SSD
@@ -163,15 +159,13 @@ resource "aws_instance" "masternode" {
     Name = "MASTERNODE"
   }
 }
-
 resource "aws_instance" "workernode" {
   ami           = "ami-0a0e5d9c7acc336f1"
   instance_type = "t2.medium"
   subnet_id     =  aws_subnet.pubsub.id
-  key_name      = "nov22"
   vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+  key_name      = "nov22" 
   associate_public_ip_address=true
-
    root_block_device {
     volume_size           = 30       # Size in GiB
     volume_type           = "gp3"     # General Purpose SSD
