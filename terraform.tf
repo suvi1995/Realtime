@@ -46,6 +46,10 @@ resource "aws_subnet" "prisub" {
 }
 resource "aws_route_table" "pubroute" {
   vpc_id = aws_vpc.myvpc.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
   tags = {
     Name = "PubRoute"
   }
@@ -53,11 +57,6 @@ resource "aws_route_table" "pubroute" {
 resource "aws_route_table_association" "pubasso" {
   subnet_id      = aws_subnet.pubsub.id
   route_table_id = aws_route_table.pubroute.id
-}
-resource "aws_route" "eroute" {
-  route_table_id         = aws_route_table.pubroute.id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.igw.id
 }
 
 resource "aws_eip" "myeip" {
@@ -73,6 +72,10 @@ resource "aws_nat_gateway" "mynat" {
 }
 resource "aws_route_table" "priroute" {
   vpc_id = aws_vpc.myvpc.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id =  aws_nat_gateway.mynat.id
+  }
   tags = {
     Name = "PriRoute"
   }
@@ -81,11 +84,7 @@ resource "aws_route_table_association" "priasso" {
   subnet_id      = aws_subnet.prisub.id
   route_table_id = aws_route_table.priroute.id
 }
-resource "aws_route" "eroute" {
-  route_table_id         = aws_route_table.priroute.id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_nat_gateway.mynat.id
-}
+
 resource "aws_security_group" "allow_ssh" {
   name        = "allow_ssh"
   description = "Allow SSH inbound traffic"
