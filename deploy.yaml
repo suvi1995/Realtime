@@ -6,7 +6,7 @@ metadata:
 spec:
   containers:
     - name: petclinic
-      image: petclinic
+      image: suvitha/pet-clinic
       ports: 
          - containerPort: 8080
 
