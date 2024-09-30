@@ -6,6 +6,8 @@ sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 sudo apt install -y docker.io
 sudo systemctl enable docker
 sudo systemctl start docker
+sudo chmod 700 /var/run/docker.sock
+docker login -u suvitha
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 sudo apt install -y apt-transport-https ca-certificates curl gpg
 sudo apt install gpg
@@ -18,7 +20,7 @@ sudo apt-mark hold kubelet kubeadm kubectl
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 
 in masternode:
- sudo kubeadm init --pod-network-cidr=192.168.0.0/16
+ sudo kubeadm init --pod-network-cidr=10.244.0.0/16
  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
  sudo chown $(id -u):$(id -g) $HOME/.kube/config
  
